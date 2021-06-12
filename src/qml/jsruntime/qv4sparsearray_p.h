@@ -85,9 +85,9 @@ struct SparseArrayNode
     SparseArrayNode *previousNode() { return const_cast<SparseArrayNode *>(const_cast<const SparseArrayNode *>(this)->previousNode()); }
 
     Color color() const { return Color(p & 1); }
-    void setColor(Color c) { if (c == Black) p |= Black; else p &= ~Black; }
-    SparseArrayNode *parent() const { return reinterpret_cast<SparseArrayNode *>(p & ~Mask); }
-    void setParent(SparseArrayNode *pp) { p = (p & Mask) | quintptr(pp); }
+    void setColor(Color c) { if (c == Black) p |= quintptr(Black); else p &= quintptr(~quintptr(Black)); }
+    SparseArrayNode *parent() const { return reinterpret_cast<SparseArrayNode *>(p & quintptr(~quintptr(Mask))); }
+    void setParent(SparseArrayNode *pp) { p = (p & quintptr(Mask)) | quintptr(pp); }
 
     uint key() const {
         uint k = size_left;
