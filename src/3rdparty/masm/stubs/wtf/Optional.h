@@ -43,7 +43,7 @@
 #include <QtQml/private/qtqmlglobal_p.h>
 
 #include <memory>
-#if __cplusplus > 201402L && __has_include(<optional>)
+#if __cplusplus > 201402L && __has_include(<optional>) || defined(_MSC_VER)
 #include <optional>
 #else
 
