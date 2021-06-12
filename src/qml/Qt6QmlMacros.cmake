@@ -775,8 +775,11 @@ function(qt6_qml_type_registration target)
         CONTENT "$<IF:$<BOOL:${genex_list}>,--foreign-types=${genex_main},\n>"
     )
 
+    get_filename_component(foreign_types_dir "${foreign_types_file}" DIRECTORY)
+
     list(APPEND cmd_args
         "@${foreign_types_file}"
+        "--foreign-types-dir=${foreign_types_dir}"
     )
 
     if (TARGET ${target}Private)
@@ -819,6 +822,9 @@ function(qt6_qml_type_registration target)
         OUTPUT
             ${type_registration_cpp_file}
             ${plugin_types_file}
+        BYPRODUCTS
+            ${generated_marker_file}
+            "/DIR:${generated_marker_dir}"
         DEPENDS
             ${foreign_types_file}
             ${target_metatypes_json_file}

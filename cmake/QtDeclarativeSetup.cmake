@@ -33,7 +33,7 @@ function(qt_declarative_generate_reg_exp_jit_tables consuming_target)
     set(retgen_script_file "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/masm/yarr/create_regex_tables")
 
     add_custom_command(
-        OUTPUT "${output_file}"
+        OUTPUT "${output_file}" "/DIR:${generate_dir}"
         COMMAND "${PYTHON_EXECUTABLE}" ${retgen_script_file} ${output_file}
         MAIN_DEPENDENCY ${retgen_script_file}
     )
