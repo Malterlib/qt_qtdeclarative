@@ -89,6 +89,12 @@ int main(int argc, char **argv)
                            "want to follow Qt's versioning scheme."));
     parser.addOption(followForeignVersioningOption);
 
+    QCommandLineOption foreignTypesDirOption(QStringLiteral("foreign-types-dir"));
+    foreignTypesDirOption.setDescription(QStringLiteral(
+                                          "Directory where foreign type files are relative to"));
+    foreignTypesDirOption.setValueName(QStringLiteral("foreign types directory"));
+    parser.addOption(foreignTypesDirOption);
+
     QCommandLineOption extract(u"extract"_s);
     extract.setDescription(
             u"Extract QML types from a module and use QML_FOREIGN to register them"_s);
@@ -112,7 +118,7 @@ int main(int argc, char **argv)
     processor.postProcessTypes();
 
     if (parser.isSet(foreignTypesOption))
-        processor.processForeignTypes(parser.value(foreignTypesOption).split(QLatin1Char(',')));
+        processor.processForeignTypes(parser.value(foreignTypesOption).split(QLatin1Char(',')), parser.value(foreignTypesDirOption));
 
     processor.postProcessForeignTypes();
 
