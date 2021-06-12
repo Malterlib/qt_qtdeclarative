@@ -137,6 +137,12 @@ int main(int argc, char **argv)
     foreignTypesOption.setValueName(QStringLiteral("foreign types"));
     parser.addOption(foreignTypesOption);
 
+    QCommandLineOption foreignTypesDirOption(QStringLiteral("foreign-types-dir"));
+    foreignTypesDirOption.setDescription(QStringLiteral(
+                                          "Directory where foreign type files are relative to"));
+    foreignTypesDirOption.setValueName(QStringLiteral("foreign types directory"));
+    parser.addOption(foreignTypesDirOption);
+
     parser.addPositionalArgument(QStringLiteral("[MOC generated json file]"),
                                  QStringLiteral("MOC generated json output."));
 
@@ -182,7 +188,7 @@ int main(int argc, char **argv)
     processor.postProcessTypes();
 
     if (parser.isSet(foreignTypesOption))
-        processor.processForeignTypes(parser.value(foreignTypesOption).split(QLatin1Char(',')));
+        processor.processForeignTypes(parser.value(foreignTypesOption).split(QLatin1Char(',')), parser.value(foreignTypesDirOption));
 
     processor.postProcessForeignTypes();
 

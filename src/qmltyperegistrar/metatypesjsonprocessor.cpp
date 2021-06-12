@@ -32,7 +32,7 @@
 #include <QtCore/qjsonarray.h>
 #include <QtCore/qjsondocument.h>
 #include <QtCore/qqueue.h>
-
+#include <QDir>
 
 bool MetaTypesJsonProcessor::processTypes(const QStringList &files)
 {
@@ -47,7 +47,7 @@ bool MetaTypesJsonProcessor::processTypes(const QStringList &files)
             QJsonParseError error = {0, QJsonParseError::NoError};
             metaObjects = QJsonDocument::fromJson(f.readAll(), &error);
             if (error.error != QJsonParseError::NoError) {
-                fprintf(stderr, "Error parsing %s\n", qPrintable(source));
+                fprintf(stderr, "Error parsing source %s\n", qPrintable(source));
                 return false;
             }
         }
@@ -75,14 +75,67 @@ bool MetaTypesJsonProcessor::processTypes(const QStringList &files)
     return true;
 }
 
-bool MetaTypesJsonProcessor::processForeignTypes(const QStringList &foreignTypesFiles)
+namespace
+{
+    struct PathHelpers
+    {
+        PathHelpers(QDir const &basePath)
+            : basePath(basePath)
+        {
+            std::string ReplacePathsString;
+            if (auto *pValue = std::getenv("QT_TOOLS_REPLACE_PATHS"))
+                ReplacePathsString = pValue;
+
+            auto SplitItem = QString::fromStdString(";");
+            auto SplitEquals = QString::fromStdString("=");
+
+            if (!ReplacePathsString.empty())
+            {
+                auto replaceSplit = QString::fromStdString(ReplacePathsString).split(SplitItem);
+                for (auto &replace : replaceSplit)
+                {
+                    if (replace.isEmpty())
+                        continue;
+
+                    auto split = replace.split(SplitEquals);
+                    if (split.size() != 2)
+                        continue;
+                    auto Key = split[0];
+                    auto Value = split[1];
+
+
+                    ReplacePaths[Key] = Value;
+                }
+            }
+        }
+
+        QString CollapseRelativePath(QString const &string)
+        {
+            QString returnValue = string;
+            for (auto &mapping : ReplacePaths)
+                returnValue = returnValue.replace(mapping.first, mapping.second);
+
+            returnValue = basePath.cleanPath(basePath.absoluteFilePath(returnValue));
+
+            return returnValue;
+        }
+
+        QDir basePath;
+        std::map<QString, QString> ReplacePaths;
+    };
+}
+
+bool MetaTypesJsonProcessor::processForeignTypes(const QStringList &foreignTypesFiles, const QString &relativeToDirectory)
 {
     bool success = true;
 
+    PathHelpers pathHelpers(relativeToDirectory.isEmpty() ? QDir(QDir::currentPath()) : QDir(relativeToDirectory));
+
     for (const QString &types : foreignTypesFiles) {
-        QFile typesFile(types);
+        auto fullTypes = pathHelpers.CollapseRelativePath(types);
+        QFile typesFile(fullTypes);
         if (!typesFile.open(QIODevice::ReadOnly)) {
-            fprintf(stderr, "Cannot open foreign types file %s\n", qPrintable(types));
+            fprintf(stderr, "Cannot open foreign types file %s\n", qPrintable(fullTypes));
             success = false;
             continue;
         }
@@ -90,7 +143,7 @@ bool MetaTypesJsonProcessor::processForeignTypes(const QStringList &foreignTypes
         QJsonParseError error = {0, QJsonParseError::NoError};
         QJsonDocument foreignMetaObjects = QJsonDocument::fromJson(typesFile.readAll(), &error);
         if (error.error != QJsonParseError::NoError) {
-            fprintf(stderr, "Error parsing %s\n", qPrintable(types));
+            fprintf(stderr, "Error parsing types file %s\n", qPrintable(fullTypes));
             success = false;
             continue;
         }
@@ -99,7 +152,7 @@ bool MetaTypesJsonProcessor::processForeignTypes(const QStringList &foreignTypes
         for (const QJsonValue &metaObject : foreignObjectsArray) {
             if (!metaObject.isObject()) {
                 fprintf(stderr, "Error parsing %s: JSON is not an object\n",
-                        qPrintable(types));
+                        qPrintable(fullTypes));
                 success = false;
                 continue;
             }
