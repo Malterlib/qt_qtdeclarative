@@ -5,6 +5,8 @@
 # Q6QmlMacros
 #
 
+# Dummy
+
 set(__qt_qml_macros_module_base_dir "${CMAKE_CURRENT_LIST_DIR}" CACHE INTERNAL "")
 
 # Install support uses the CMAKE_INSTALL_xxxDIR variables. Include this here
