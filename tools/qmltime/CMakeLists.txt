@@ -27,7 +27,7 @@ qt_internal_add_tool(${target_name}
 
 # Don't set properties on a host tool when cross compiling, because it
 # is not being built.
-if(NOT CMAKE_CROSSCOMPILING OR QT_BUILD_TOOLS_WHEN_CROSSCOMPILING)
+if(NOT (CMAKE_CROSSCOMPILING OR QT_FORCE_NO_TOOLS) OR QT_BUILD_TOOLS_WHEN_CROSSCOMPILING)
 
 set_target_properties(${target_name} PROPERTIES
     QT_QML_MODULE_VERSION 1.0
