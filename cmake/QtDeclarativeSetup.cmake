@@ -1,6 +1,8 @@
 # Copyright (C) 2022 The Qt Company Ltd.
 # SPDX-License-Identifier: BSD-3-Clause
 
+# Dummy
+
 # Create a header containing a hash that describes this library.  For a
 # released version of Qt, we'll use the .tag file that is updated by git
 # archive with the tree hash. For unreleased versions, we'll ask git
