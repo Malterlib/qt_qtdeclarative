@@ -550,6 +550,7 @@ class QMLDOM_EXPORT Binding
 public:
     constexpr static DomType kindValue = DomType::Binding;
 
+    Binding();
     Binding(const QString &m_name = QString());
     Binding(const QString &m_name, std::unique_ptr<BindingValue> value,
             BindingType bindingType = BindingType::Normal);
