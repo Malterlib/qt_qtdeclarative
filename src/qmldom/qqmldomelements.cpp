@@ -1015,6 +1015,21 @@ void QmlObject::writeOut(DomItem &self, OutWriter &ow, QString onTarget) const
     ow.ensureNewline().write(u"}");
 }
 
+Binding::Binding()
+	: Binding(QString())
+{
+}
+
+Binding::Binding(QString name)
+	: Binding(std::move(name), std::unique_ptr<BindingValue>())
+{
+}
+
+Binding::Binding(QString name, std::unique_ptr<BindingValue> value)
+	: Binding(std::move(name), std::move(value), BindingType::Normal)
+{
+}
+
 Binding::Binding(QString name, std::unique_ptr<BindingValue> value, BindingType bindingType)
     : m_bindingType(bindingType), m_name(name), m_value(std::move(value))
 {
@@ -1056,6 +1071,11 @@ Binding::Binding(const Binding &o)
 }
 
 Binding::~Binding() { }
+
+void Binding::setValue(std::unique_ptr<BindingValue> &&value)
+{
+	m_value = std::move(value);
+}
 
 Binding &Binding::operator=(const Binding &o)
 {
