@@ -18,6 +18,7 @@
 #include <QtCore/qpoint.h>
 #include <QtCore/qbasictimer.h>
 #include <QtCore/private/qglobal_p.h>
+#include <QtGui/qevent.h>
 
 #include <memory>
 
