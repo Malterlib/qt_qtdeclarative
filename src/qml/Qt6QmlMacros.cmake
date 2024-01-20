@@ -1672,7 +1672,6 @@ function(_qt_internal_target_enable_qmlcachegen target qmlcachegen)
         COMMAND "${cmd}"
         COMMAND_EXPAND_LISTS
         DEPENDS
-            ${qmlcachegen}
             ${qmlcache_loader_list}
             $<TARGET_PROPERTY:${target},_qt_generated_qrc_files>
         VERBATIM
@@ -3389,7 +3388,6 @@ function(qt6_target_qml_sources target)
                     "${file_absolute}"
                 COMMAND_EXPAND_LISTS
                 DEPENDS
-                    ${qmlcachegen_cmd}
                     "${file_absolute}"
                     $<TARGET_PROPERTY:${target},_qt_generated_qrc_files>
                     "$<$<BOOL:${qmltypes_file}>:${qmltypes_file}>"
