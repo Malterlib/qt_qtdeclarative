@@ -147,8 +147,7 @@ namespace
 
 bool MetaTypesJsonProcessor::processForeignTypes(const QString &types)
 {
-    auto fullTypes = pathHelpers.CollapseRelativePath(types);
-    QFile typesFile(fullTypes);
+    QFile typesFile(types);
     if (!typesFile.open(QIODevice::ReadOnly)) {
         error(types) << "Cannot open foreign types file";
         return false;
@@ -176,12 +175,15 @@ bool MetaTypesJsonProcessor::processForeignTypes(const QString &types)
     return true;
 }
 
-bool MetaTypesJsonProcessor::processForeignTypes(const QStringList &foreignTypesFiles)
+bool MetaTypesJsonProcessor::processForeignTypes(const QStringList &foreignTypesFiles, const QString &relativeToDirectory)
 {
     bool success = true;
 
+    PathHelpers pathHelpers(relativeToDirectory.isEmpty() ? QDir(QDir::currentPath()) : QDir(relativeToDirectory));
+
     for (const QString &types : foreignTypesFiles) {
-        if (!processForeignTypes(types))
+        auto fullTypes = pathHelpers.CollapseRelativePath(types);
+        if (!processForeignTypes(fullTypes))
             success = false;
     }
     return success;
