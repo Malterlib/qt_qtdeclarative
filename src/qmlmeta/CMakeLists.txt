@@ -86,5 +86,7 @@ qt_internal_extend_target(QmlMeta CONDITION QT_FEATURE_qml_locale
 # Qml_sync_headers target is created later by the finalizer in the directory scope so we add this
 # dependency manually instead of relying on qt_internal_add_qml_module logic. Same is applicable
 # for the QmlMeta target.
-set_property(TARGET qmlplugin APPEND PROPERTY AUTOGEN_TARGET_DEPENDS Qml_sync_headers)
-set_property(TARGET QmlMeta APPEND PROPERTY AUTOGEN_TARGET_DEPENDS Qml_sync_headers)
+if(QT_ENABLE_SYNCQT_DYNAMIC)
+    set_property(TARGET qmlplugin APPEND PROPERTY AUTOGEN_TARGET_DEPENDS Qml_sync_headers)
+    set_property(TARGET QmlMeta APPEND PROPERTY AUTOGEN_TARGET_DEPENDS Qml_sync_headers)
+endif()
