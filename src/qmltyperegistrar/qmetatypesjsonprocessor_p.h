@@ -248,7 +248,7 @@ public:
     bool processTypes(const QStringList &files);
 
     bool processForeignTypes(const QString &foreignTypesFile);
-    bool processForeignTypes(const QStringList &foreignTypesFiles);
+    bool processForeignTypes(const QStringList &foreignTypesFiles, const QString &relativeToDirectory);
 
     void postProcessTypes();
     void postProcessForeignTypes();

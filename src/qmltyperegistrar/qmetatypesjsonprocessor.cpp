@@ -14,6 +14,7 @@
 #include <QtCore/qfile.h>
 #include <QtCore/qjsondocument.h>
 #include <QtCore/qqueue.h>
+#include <QDir>
 
 QT_BEGIN_NAMESPACE
 
@@ -97,6 +98,56 @@ bool MetaTypesJsonProcessor::processTypes(const QStringList &files)
     return true;
 }
 
+namespace
+{
+    struct PathHelpers
+    {
+        PathHelpers(QDir const &basePath)
+            : basePath(basePath)
+        {
+            std::string ReplacePathsString;
+            if (auto *pValue = std::getenv("QT_TOOLS_REPLACE_PATHS"))
+                ReplacePathsString = pValue;
+
+            auto SplitItem = QString::fromStdString(";");
+            auto SplitEquals = QString::fromStdString("=");
+
+            if (!ReplacePathsString.empty())
+            {
+                auto replaceSplit = QString::fromStdString(ReplacePathsString).split(SplitItem);
+                for (auto &replace : replaceSplit)
+                {
+                    if (replace.isEmpty())
+                        continue;
+
+                    auto split = replace.split(SplitEquals);
+                    if (split.size() != 2)
+                        continue;
+                    auto Key = split[0];
+                    auto Value = split[1];
+
+
+                    ReplacePaths[Key] = Value;
+                }
+            }
+        }
+
+        QString CollapseRelativePath(QString const &string)
+        {
+            QString returnValue = string;
+            for (auto &mapping : ReplacePaths)
+                returnValue = returnValue.replace(mapping.first, mapping.second);
+
+            returnValue = basePath.cleanPath(basePath.absoluteFilePath(returnValue));
+
+            return returnValue;
+        }
+
+        QDir basePath;
+        std::map<QString, QString> ReplacePaths;
+    };
+}
+
 bool MetaTypesJsonProcessor::processForeignTypes(const QString &types)
 {
     QFile typesFile(types);
@@ -127,15 +178,18 @@ bool MetaTypesJsonProcessor::processForeignTypes(const QString &types)
     return true;
 }
 
-bool MetaTypesJsonProcessor::processForeignTypes(const QStringList &foreignTypesFiles)
+bool MetaTypesJsonProcessor::processForeignTypes(const QStringList &foreignTypesFiles, const QString &relativeToDirectory)
 {
     bool success = true;
+
+    PathHelpers pathHelpers(relativeToDirectory.isEmpty() ? QDir(QDir::currentPath()) : QDir(relativeToDirectory));
 
     for (const QString &types : foreignTypesFiles) {
         if (m_seenMetaTypesFiles.hasSeen(types))
             continue;
 
-        if (!processForeignTypes(types))
+        auto fullTypes = pathHelpers.CollapseRelativePath(types);
+        if (!processForeignTypes(fullTypes))
             success = false;
     }
     return success;
