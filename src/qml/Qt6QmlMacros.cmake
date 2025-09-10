@@ -2920,11 +2920,13 @@ function(_qt_internal_qml_copy_files_to_build_dir target)
     set(generated_copy_files_info_path_timestamp
         "${CMAKE_CURRENT_BINARY_DIR}/.qt/${target}_${arg_CUSTOM_TARGET_SUFFIX}.txt")
 
+    get_filename_component(_qt_abs_target_source_dir "${target_source_dir}" REALPATH)
 
     set(generated_copy_files_info
         "
 set(target \"${target}\")
-set(working_dir \"${target_source_dir}\")
+set(working_dir \"${_qt_abs_target_source_dir}\")
+
 set(src_and_dest_list
 $<TARGET_PROPERTY:${target},${arg_PROP_WITH_ENTRIES}>
 )
