@@ -3972,20 +3972,10 @@ function(_qt_internal_qml_type_registration target)
         set(effective_target ${arg_REGISTRATIONS_TARGET})
     endif()
 
-    # Both ${effective_target} (via target_sources) and ${target}_qmltyperegistration (via
-    # add_custom_target DEPENDS option) depend on ${type_registration_cpp_file}.
-    # The new Xcode build system requires a common target to drive the generation of files,
-    # otherwise project configuration fails.
-    # Make ${effective_target} the common target, by adding it as a dependency for
-    # ${target}_qmltyperegistration.
-    # The consequence is that the ${target}_qmllint target will now first build ${effective_target}
-    # when using the Xcode generator (mostly only relevant for projects using Qt for iOS).
-    # See QTBUG-95763.
-    if(CMAKE_GENERATOR STREQUAL "Xcode")
-        add_dependencies(${target}_qmltyperegistration ${effective_target})
-    endif()
+    add_dependencies(${target}_qmltyperegistration ${effective_target})
 
     target_sources(${effective_target} PRIVATE ${type_registration_cpp_file})
+
 
     # FIXME: The generated .cpp file has usually lost the path information for
     #        the headers it #include's. Since these generated .cpp files are in

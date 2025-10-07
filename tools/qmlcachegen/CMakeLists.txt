@@ -16,6 +16,8 @@ qt_internal_add_tool(${target_name}
         QT_NO_CAST_FROM_ASCII
         QT_NO_CAST_TO_ASCII
     LIBRARIES
+        Qt::Qml
+        Qt::QmlCompiler
         Qt::QmlCompilerPrivate
 )
 
