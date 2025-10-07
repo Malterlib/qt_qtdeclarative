@@ -3955,12 +3955,21 @@ function(_qt_internal_qml_type_registration target)
     # here. Note that we can't use ${target} itself for those dependencies
     # because the user might want to run qmllint without having to build the
     # QML module.
-    add_custom_target(${target}_qmltyperegistration
-        DEPENDS
-            ${type_registration_cpp_file}
-            ${plugin_types_file}
-    )
+    # The ${target}_qmllint targets need to depend on the generation of all *.qmltypes ...
+    if(CMAKE_GENERATOR STREQUAL "Xcode")
+        # Xcode: gör ett rent phony-alias, inga fil-DEPENDS (undviker dubblett-producers)
+        add_custom_target(${target}_qmltyperegistration)
+    else()
+        # Övriga generatorer: behåll originalbeteendet
+        add_custom_target(${target}_qmltyperegistration
+            DEPENDS
+                ${type_registration_cpp_file}
+                ${plugin_types_file}
+        )
+    endif()
+
     _qt_internal_assign_to_internal_targets_folder(${target}_qmltyperegistration)
+
     if(NOT TARGET all_qmltyperegistrations)
         add_custom_target(all_qmltyperegistrations)
         _qt_internal_assign_to_internal_targets_folder(all_qmltyperegistrations)
@@ -3972,20 +3981,10 @@ function(_qt_internal_qml_type_registration target)
         set(effective_target ${arg_REGISTRATIONS_TARGET})
     endif()
 
-    # Both ${effective_target} (via target_sources) and ${target}_qmltyperegistration (via
-    # add_custom_target DEPENDS option) depend on ${type_registration_cpp_file}.
-    # The new Xcode build system requires a common target to drive the generation of files,
-    # otherwise project configuration fails.
-    # Make ${effective_target} the common target, by adding it as a dependency for
-    # ${target}_qmltyperegistration.
-    # The consequence is that the ${target}_qmllint target will now first build ${effective_target}
-    # when using the Xcode generator (mostly only relevant for projects using Qt for iOS).
-    # See QTBUG-95763.
-    if(CMAKE_GENERATOR STREQUAL "Xcode")
-        add_dependencies(${target}_qmltyperegistration ${effective_target})
-    endif()
+    add_dependencies(${target}_qmltyperegistration ${effective_target})
 
     target_sources(${effective_target} PRIVATE ${type_registration_cpp_file})
+
 
     # FIXME: The generated .cpp file has usually lost the path information for
     #        the headers it #include's. Since these generated .cpp files are in

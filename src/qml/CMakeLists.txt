@@ -501,6 +501,7 @@ list(APPEND builtins_output_files "${qml_root_dir}/builtins.qmltypes")
 list(APPEND builtins_output_files "${qml_root_dir}/jsroot.qmltypes")
 
 add_custom_target(BuiltinsOutput DEPENDS ${builtins_output_files})
+add_dependencies(BuiltinsOutput Qml_qmltyperegistration)
 
 qt_install(
     FILES ${builtins_output_files}
