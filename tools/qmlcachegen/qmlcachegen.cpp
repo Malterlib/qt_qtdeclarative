@@ -58,6 +58,9 @@ static bool argumentsFromCommandLineAndFile(QStringList& allArguments, const QSt
 
 int main(int argc, char **argv)
 {
+    Q_INIT_RESOURCE(qmake_QML);
+    Q_INIT_RESOURCE(builtins);
+    
     // Produce reliably the same output for the same input by disabling QHash's random seeding.
     QHashSeed::setDeterministicGlobalSeed();
 
