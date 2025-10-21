@@ -14,8 +14,6 @@
 
 using namespace Qt::Literals;
 
-void qInitResources_jsRootMetaTypes();
-
 int main(int argc, char **argv)
 {
     // Produce reliably the same output for the same input by disabling QHash's random seeding.
@@ -27,7 +25,10 @@ int main(int argc, char **argv)
     qputenv("QT_MESSAGE_PATTERN", "%{if-category}%{category}: %{endif}%{message}");
 
     QCoreApplication app(argc, argv);
-    qInitResources_jsRootMetaTypes();
+
+    #if defined(QT_STATIC)
+        Q_INIT_RESOURCE(jsRootMetaTypes);
+    #endif
     QCoreApplication::setApplicationName(QStringLiteral("qmltyperegistrar"));
     QCoreApplication::setApplicationVersion(QLatin1String(QT_VERSION_STR));
 
