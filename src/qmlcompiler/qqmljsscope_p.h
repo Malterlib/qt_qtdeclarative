@@ -61,13 +61,13 @@ public:
         return a.m_iterator != b.m_iterator;
     }
 
-    reference operator*()
+    reference operator*() const
     {
         if (!m_pointer)
             m_pointer = *m_iterator;
         return m_pointer;
     }
-    pointer operator->()
+    pointer operator->() const
     {
         if (!m_pointer)
             m_pointer = *m_iterator;
@@ -89,7 +89,7 @@ public:
 
 private:
     QList<Ptr>::const_iterator m_iterator;
-    ConstPtr m_pointer;
+    mutable ConstPtr m_pointer;
 };
 
 class Export {
