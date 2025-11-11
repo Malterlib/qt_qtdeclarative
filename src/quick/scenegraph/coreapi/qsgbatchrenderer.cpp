@@ -3276,7 +3276,7 @@ bool Renderer::prepareRenderMergedBatch(Batch *batch, PreparedRenderBatch *rende
     updateMaterialStaticData(sms, renderState, material, batch, &pendingGStatePop);
 
     char *directUpdatePtr = nullptr;
-    if (batch->ubuf->nativeBuffer().slotCount == 0)
+    if (batch->ubuf && batch->ubuf->nativeBuffer().slotCount == 0)
         directUpdatePtr = batch->ubuf->beginFullDynamicBufferUpdateForCurrentFrame();
 
     updateMaterialDynamicData(sms, renderState, material, batch, e, 0, ubufSize, directUpdatePtr);
@@ -3466,12 +3466,22 @@ bool Renderer::prepareRenderUnmergedBatch(Batch *batch, PreparedRenderBatch *ren
     e = batch->first;
 
     char *directUpdatePtr = nullptr;
-    if (batch->ubuf->nativeBuffer().slotCount == 0)
+    if (batch->ubuf && batch->ubuf->nativeBuffer().slotCount == 0)
         directUpdatePtr = batch->ubuf->beginFullDynamicBufferUpdateForCurrentFrame();
 
     while (e) {
         gn = e->node;
 
+
+        // HANSOFT PATCH: Qt 6.9.2 regression - sometimes e->node is null
+        // This appears to be a Qt bug where batch elements reference destroyed/invalid nodes
+        // Skip these elements to prevent crashes
+        if (Q_UNLIKELY(!gn)) {
+            qWarning("QSGBatchRenderer: Encountered null geometry node in batch element, skipping. "
+                     "This may indicate a Qt 6.9.2 scene graph bug.");
+            e = e->nextInBatch;
+            continue;
+        }
         m_current_model_view_matrix = rootMatrix * *gn->matrix();
         m_current_determinant = m_current_model_view_matrix.determinant();
 
