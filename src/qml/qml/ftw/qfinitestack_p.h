@@ -17,6 +17,8 @@
 
 #include <QtCore/private/qglobal_p.h>
 
+#include <stdlib.h>
+
 QT_BEGIN_NAMESPACE
 
 template<typename T>
